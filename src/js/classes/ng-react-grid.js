@@ -4,8 +4,6 @@ var NgReactGridEditManager = require("./ng-react-grid-edit-manager");
 var NgReactGridComponent = require("../jsx/react-grid");
 var NO_GET_DATA_CALLBACK_ERROR = "localMode is false, please implement the getData function on the grid object";
 
-console.log('here' + NgReactGridComponent);
-
 /**
  * NgReactGrid - Main class
  * @param scope
@@ -206,7 +204,7 @@ NgReactGrid.prototype.setupUpdateEvents = function () {
  * Initializes the scope watchers needed for the grid
  */
 NgReactGrid.prototype.initWatchers = function () {
-    this.scope.$watch("grid.data", function (newValue, oldValue) {
+    this.scope.$watchCollection("grid.data", function (newValue, oldValue) {
         if (newValue !== oldValue) {
             if (this.isServerMode() && this.react.loading) {
                 this.react.loading = false;

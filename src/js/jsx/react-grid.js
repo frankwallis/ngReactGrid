@@ -366,6 +366,10 @@ var NgReactGridComponent = (function() {
                   this.props.grid.react.rowClick(this.props.row);
                 }
             },
+            shouldComponentUpdate: function() {
+                //console.log('rendered ' + this.props.row.itemIndex + ': ' + (this.props.row.entity && (this.props.row.rendered == false)));
+               return (!!this.props.row.entity && (this.props.row.rendered == false));
+            },
             render: function() {
 
                 var columnsLength = this.props.grid.columnDefs.length;
@@ -373,6 +377,12 @@ var NgReactGridComponent = (function() {
                     var last = (columnsLength - 1) === key;
                     return React.createElement(NgReactGridBodyRowCell, {key: key, cell: cell, row: this.props.row, grid: this.props.grid, last: last})
                 }.bind(this));
+
+                this.props.row.rendered = true;
+//                console.log('rendered ' + this.props.row.itemIndex);
+
+                if (!this.props.row.entity)
+                    return React.createElement("div", null)
 
                 return (
                     React.createElement("tr", {onClick: this.handleClick}, 
@@ -419,7 +429,16 @@ var NgReactGridComponent = (function() {
                 var header = domContainer.querySelector(".ngReactGridHeaderInner");
                 var viewPort = domContainer.querySelector(".ngReactGridViewPort");
 
+                var ensureData = this.props.grid.react.wrapFunctionsInAngular(this.props.grid.ensureData);
+                //var grid = this.props.grid;
+
                 domNode.firstChild.addEventListener('scroll', function(e) {
+                    
+                    var startRow = 60;
+                    var endRow = 120;
+
+                    ensureData(startRow, endRow);
+
                     header.scrollLeft = viewPort.scrollLeft;
                 });
 
@@ -432,6 +451,30 @@ var NgReactGridComponent = (function() {
 
                 var mapRows = function(row, index) {
                     return React.createElement(NgReactGridBodyRow, {key: index, row: row, columns: this.props.columnDefs, grid: this.props.grid})
+                }.bind(this);
+
+                var reduceRows = function(result, row, index, rows) {
+                    if (row.entity)
+                        result.push(React.createElement(NgReactGridBodyRow, {key: index, row: row, columns: this.props.columnDefs, grid: this.props.grid}));
+                    else if ((index == rows.length -1) || rows[index + 1].entity) {
+                        
+                        var emptyHeight = 0;
+                        
+                        for (var i = index; i >= 0; i --) {
+                            if (rows[i].entity)
+                                break;
+                            else
+                                emptyHeight = emptyHeight + 20;
+                        }
+                        
+                        var divStyle = {
+                            height: emptyHeight
+                        };
+
+                        console.log('returning with height ' + emptyHeight);
+                        result.push(React.createElement("div", {key: index, style: divStyle}));                        
+                    }
+                    return result;
                 }.bind(this);
 
                 var rows;
@@ -451,9 +494,12 @@ var NgReactGridComponent = (function() {
                     )
                 } else {
                     if(!this.state.fullRender) {
+                        console.log('partial render')
                         rows = this.props.grid.data.slice(0, 100).map(mapRows);
                     } else {
-                        rows = this.props.grid.data.map(mapRows);
+                        console.log('full render')
+                        //rows = this.props.grid.data.map(mapRows);
+                        rows = this.props.grid.data.reduce(reduceRows, []);
                     }
 
                     if(this.props.grid.react.showingRecords === 0) {
@@ -485,9 +531,11 @@ var NgReactGridComponent = (function() {
                     tableStyle.width = "calc(100% - " + this.props.grid.scrollbarWidth + "px)";
                 }
 
+                //onscroll={this.handleScroll} 
+
                 return (
                     React.createElement("div", {className: "ngReactGridBody"}, 
-                        React.createElement("div", {className: "ngReactGridViewPort", style: ngReactGridViewPortStyle}, 
+                        React.createElement("div", {className: "ngReactGridViewPort", onscroll: this.handleScroll, style: ngReactGridViewPortStyle}, 
                             React.createElement("div", {className: "ngReactGridInnerViewPort"}, 
                                 React.createElement("table", {style: tableStyle}, 
                                     React.createElement("tbody", null, 
