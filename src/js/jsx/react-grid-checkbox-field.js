@@ -1,5 +1,5 @@
 var NgReactGridCheckboxFieldComponent = (function() {
-    var NgReactGridCheckboxFieldComponent = React.createClass({
+    var NgReactGridCheckboxFieldComponent = React.createClass({displayName: 'NgReactGridCheckboxFieldComponent',
         getInitialState: function() {
             return {
                 checked: false
@@ -26,10 +26,12 @@ var NgReactGridCheckboxFieldComponent = (function() {
         },
         render: function() {
             return (
-                <input type="checkbox" checked={this.state.checked} onChange={this.handleClick} />
+                React.createElement("input", {type: "checkbox", checked: this.state.checked, onChange: this.handleClick})
             )
         }
     });
 
     return NgReactGridCheckboxFieldComponent;
 })();
+
+module.exports = NgReactGridCheckboxFieldComponent;

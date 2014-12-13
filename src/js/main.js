@@ -1,10 +1,12 @@
 'use strict';
 
-var ngReactGridDirective = require('./directives/ngReactGridDirective');
-var ngReactGridCheckboxFactory = require('./factories/ngReactGridCheckboxFactory');
-var ngReactGridTextFieldFactory = require("./factories/ngReactGridTextFieldFactory");
-var ngReactGridCheckboxFieldFactory = require("./factories/ngReactGridCheckboxFieldFactory");
-var ngReactGridSelectFieldFactory = require("./factories/ngReactGridSelectFieldFactory");
+window.React = require("react");
+
+var ngReactGridDirective = require('./directives/ng-react-grid-directive');
+var ngReactGridCheckboxFactory = require('./factories/ng-react-grid-checkbox-factory');
+var ngReactGridTextFieldFactory = require("./factories/ng-react-grid-text-field-factory");
+var ngReactGridCheckboxFieldFactory = require("./factories/ng-react-grid-checkbox-field-factory");
+var ngReactGridSelectFieldFactory = require("./factories/ng-react-grid-select-field-factory");
 
 angular.module('ngReactGrid', [])
     .factory("ngReactGridCheckbox", ['$rootScope', ngReactGridCheckboxFactory])

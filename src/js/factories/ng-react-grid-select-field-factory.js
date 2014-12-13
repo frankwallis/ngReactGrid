@@ -1,4 +1,5 @@
-var NgReactGridReactManager = require("../classes/NgReactGridReactManager");
+var NgReactGridReactManager = require("../classes/ng-react-grid-react-manager");
+var NgReactGridSelectFieldComponent = require("../jsx/react-grid-select-field");
 
 var ngReactGridSelectFieldFactory = function($rootScope) {
 

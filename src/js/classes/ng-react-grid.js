@@ -1,7 +1,10 @@
-var _ = require('../vendors/miniUnderscore');
-var NgReactGridReactManager = require("./NgReactGridReactManager");
-var NgReactGridEditManager = require("./NgReactGridEditManager");
+var _ = require('../vendors/mini-underscore');
+var NgReactGridReactManager = require("./ng-react-grid-react-manager");
+var NgReactGridEditManager = require("./ng-react-grid-edit-manager");
+var NgReactGridComponent = require("../jsx/react-grid");
 var NO_GET_DATA_CALLBACK_ERROR = "localMode is false, please implement the getData function on the grid object";
+
+console.log('here' + NgReactGridComponent);
 
 /**
  * NgReactGrid - Main class

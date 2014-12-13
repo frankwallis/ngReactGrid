@@ -31,3 +31,5 @@ var NgReactGridTextFieldComponent = (function() {
 
     return NgReactGridTextFieldComponent;
 })();
+
+module.exports = NgReactGridTextFieldComponent;

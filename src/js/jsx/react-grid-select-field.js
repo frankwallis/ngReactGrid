@@ -1,6 +1,6 @@
 var NgReactGridSelectFieldComponent = (function() {
 
-    var NgReactGridSelectFieldComponent = React.createClass({
+    var NgReactGridSelectFieldComponent = React.createClass({displayName: 'NgReactGridSelectFieldComponent',
         getInitialState: function() {
             return {
                 defaultValue: {
@@ -36,14 +36,14 @@ var NgReactGridSelectFieldComponent = (function() {
 
             var options = this.props.referenceData.map(function(option) {
                 return (
-                    <option value={option.id}>{option.name}</option>
+                    React.createElement("option", {value: option.id}, option.name)
                 )
             });
         
             return (
-                <select className="ngReactGridSelectField" value={this.state.defaultValue.id} onChange={this.handleChange}>
-                    {options}
-                </select>
+                React.createElement("select", {className: "ngReactGridSelectField", value: this.state.defaultValue.id, onChange: this.handleChange}, 
+                    options
+                )
             )
         }
     });
@@ -51,3 +51,5 @@ var NgReactGridSelectFieldComponent = (function() {
     return NgReactGridSelectFieldComponent;
 
 })();
+
+module.exports = NgReactGridSelectFieldComponent;

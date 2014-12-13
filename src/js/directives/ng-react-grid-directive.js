@@ -1,4 +1,4 @@
-var ngReactGrid = require("../classes/NgReactGrid");
+var ngReactGrid = require("../classes/ng-react-grid");
 
 var ngReactGridDirective = function ($rootScope) {
     return {

@@ -2,12 +2,12 @@
   "name": "ng-react-grid",
   "version": "0.7.0",
   "description": "A really fast Angular grid using the power of React to render",
-  "main": "build/js/ngReactGrid.js",
+  "main": "src/js/main.js",
   "dependencies": {
     "eabay/react": "master"
   },
   "scripts": [
-    "build/js/ngReactGrid.js"
+    "src/js/**/*.js"
   ],
   "styles": [
     "build/css/ngReactGrid.css"

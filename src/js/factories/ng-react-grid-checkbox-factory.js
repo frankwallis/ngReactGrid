@@ -1,5 +1,6 @@
-var _ = require('../vendors/miniUnderscore');
-var NgReactGridReactManager = require("../classes/NgReactGridReactManager");
+var _ = require('../vendors/mini-underscore');
+var NgReactGridReactManager = require("../classes/ng-react-grid-react-manager");
+var NgReactGridCheckboxComponent = require("../jsx/react-grid-checkbox");
 
 var ngReactGridCheckboxFactory = function($rootScope) {
     var ngReactGridCheckbox = function(selectionTarget, options) {

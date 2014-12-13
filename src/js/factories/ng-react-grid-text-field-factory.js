@@ -1,4 +1,5 @@
-var NgReactGridReactManager = require("../classes/NgReactGridReactManager");
+var NgReactGridReactManager = require("../classes/ng-react-grid-react-manager");
+var NgReactGridTextFieldComponent = require("../jsx/react-grid-text-field");
 
 var ngReactGridTextFieldFactory = function($rootScope) {
 

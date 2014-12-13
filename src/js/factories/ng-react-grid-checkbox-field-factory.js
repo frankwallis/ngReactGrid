@@ -1,4 +1,5 @@
-var NgReactGridReactManager = require("../classes/NgReactGridReactManager");
+var NgReactGridReactManager = require("../classes/ng-react-grid-react-manager");
+var NgReactGridCheckboxFieldComponent = require("../jsx/react-grid-checkbox-field");
 
 var ngReactGridCheckboxFieldFactory = function() {
 

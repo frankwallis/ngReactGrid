@@ -1,5 +1,5 @@
 var NgReactGridCheckboxComponent = (function() {
-    var NgReactGridCheckboxComponent = React.createClass({
+    var NgReactGridCheckboxComponent = React.createClass({displayName: 'NgReactGridCheckboxComponent',
         getInitialState: function() {
             var disableCheckboxField = this.props.options.disableCheckboxField;
             var disableCheckboxFieldValue = this.props.utils.getObjectPropertyByStringFn(this.props.row, disableCheckboxField);
@@ -60,13 +60,13 @@ var NgReactGridCheckboxComponent = (function() {
 
             if (this.state.disabled && hideDisabledCheckboxField) {
               return (
-                    <div style={this.props.options.headerStyle} />
+                    React.createElement("div", {style: this.props.options.headerStyle})
               )
             } else {
                 return (
-                    <div style={this.props.options.headerStyle}>
-                        <input type="checkbox" onChange={this.handleClick} checked={this.state.checked} disabled={this.state.disabled} />
-                    </div>
+                    React.createElement("div", {style: this.props.options.headerStyle}, 
+                        React.createElement("input", {type: "checkbox", onChange: this.handleClick, checked: this.state.checked, disabled: this.state.disabled})
+                    )
                 )
             }
         }
@@ -74,3 +74,5 @@ var NgReactGridCheckboxComponent = (function() {
 
     return NgReactGridCheckboxComponent;
 })();
+
+module.exports = NgReactGridCheckboxComponent;

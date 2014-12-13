@@ -19,17 +19,16 @@ gulp.task('img', function () {
         .pipe(gulp.dest('./build/img'));
 });
 
-gulp.task('build-grid', function () {
-    var jsxFilter = gulpFilter('**/*.jsx');
-    var jsFilter = gulpFilter("**/*.js");
-    return gulp.src(['./src/js/main.js', './src/jsx/**.jsx'])
-        .pipe(jsFilter)
-        .pipe(browserify())
-        .pipe(jsFilter.restore())
-        .pipe(jsxFilter)
+gulp.task('build-jsx', function () {
+    return gulp.src(['./src/jsx/**.jsx'])
         .pipe(react())
-        .pipe(jsxFilter.restore())
-        .pipe(concat('ngReactGrid.js'))
+        .pipe(gulp.dest('./src/js/jsx'))
+});
+
+gulp.task('build-grid', [ 'build-jsx'], function () {
+    return gulp.src(['./src/js/main.js'])
+        .pipe(browserify())
+        .pipe(rename('ngReactGrid.js'))
         .pipe(replace(/{\$version}/g, packageJSON.version))
         .pipe(gulp.dest('./build/js/'))
 });
