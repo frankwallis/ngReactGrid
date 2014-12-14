@@ -367,11 +367,11 @@ var NgReactGridComponent = (function() {
                 }
             },
             shouldComponentUpdate: function(nextProps, nextState) {
-                if(this.props.row.entity != nextProps.row.entity) {
-                    console.log('rendering ' + this.props.row.itemIndex)
-                } else {
-                   // console.log('not updating ' + this.props.row.itemIndex)
-                }   
+                // if(this.props.row.entity != nextProps.row.entity) {
+                //     console.log('rendering ' + this.props.row.itemIndex)
+                // } else {
+                //     console.log('not updating ' + this.props.row.itemIndex)
+                // }   
                 //console.log('rendered ' + this.props.row.itemIndex + ': ' + (this.props.row.entity && (this.props.row.rendered == false)));
                return (this.props.row != nextProps.row)
             },
@@ -412,7 +412,7 @@ var NgReactGridComponent = (function() {
                     }
                 }
 
-                console.log('not updating ' + this.props.start + '-' + this.props.end);
+                //console.log('not updating ' + this.props.start + '-' + this.props.end);
                 return false;
             },
             componentWillMount: function() {
@@ -574,9 +574,8 @@ var NgReactGridComponent = (function() {
                     )
                 } else {
                     var rowCount = this.props.grid.data.length;
-                    var chunkSize = 120;
-                    var remainder = rowCount % chunkSize;
-
+                    var chunkSize = 60;
+            
                     rows = [];
                     for(var j = 0; j < Math.ceil(rowCount / chunkSize); j ++) {
 
