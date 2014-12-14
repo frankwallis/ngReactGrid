@@ -1,6 +1,10 @@
 /**
  * NgReactGridComponent - React Component
  **/
+
+var chunkSize = 60;
+var rowHeight = 24;
+
 var NgReactGridComponent = (function() {
     var windowInnerWidth = window.innerWidth, windowInnerHeight = window.innerHeight;
 
@@ -385,8 +389,12 @@ var NgReactGridComponent = (function() {
 
                 console.log('rendered row ' + this.props.row.itemIndex);
 
+                var rowStyle = {
+                    height: rowHeight
+                };
+
                 return (
-                    React.createElement("tr", {onClick: this.handleClick}, 
+                    React.createElement("tr", {style: rowStyle, onClick: this.handleClick}, 
                         cells
                     )
                 )
@@ -467,7 +475,7 @@ var NgReactGridComponent = (function() {
                     var key = this.props.start;
 
                     var divStyle = {
-                        height: 2041//(this.props.end - this.props.start + 1) * 20 // TODO use average height of populated items
+                        height: (this.props.end - this.props.start + 1) * rowHeight // TODO use average height of populated items
                     };
 
                     return (React.createElement("div", {key: key, style: divStyle}));      
@@ -496,12 +504,20 @@ var NgReactGridComponent = (function() {
                     needsUpdate: false
                 }
             },
-            calculateIfNeedsUpdate: function() {
-                ///if(this.props.grid.data.length > 100) {
+            calculateIfNeedsUpdate: function(nextProps) {
+                if(!nextProps || (this.props.grid.data != nextProps.grid.data)) {
                     this.setState({
-                        needsUpdate: true
+                        needsUpdate: true,
+                        fullRender: false
                     });
-                //}
+                }
+                else {
+                    this.setState({
+                        needsUpdate: false,
+                        fullRender: false
+                    });
+
+                }
             },
             performFullRender: function() {
                 if(this.state.needsUpdate) {
@@ -514,10 +530,13 @@ var NgReactGridComponent = (function() {
                 }
             },
             componentWillMount: function() {
-                this.calculateIfNeedsUpdate();
+               // this.calculateIfNeedsUpdate();
             },
-            componentWillReceiveProps: function() {
-                this.calculateIfNeedsUpdate();
+            componentWillReceiveProps: function(nextProps) {
+                this.setState({
+                    rowCount: nextProps.grid.data.length
+                })
+                //this.calculateIfNeedsUpdate(nextProps);
             },
             componentDidMount: function() {
                 var domNode = this.getDOMNode();
@@ -527,19 +546,30 @@ var NgReactGridComponent = (function() {
                 var ensureData = this.props.grid.react.wrapFunctionsInAngular(this.props.grid.ensureData);
 
                 domNode.firstChild.addEventListener('scroll', function(e) {
-                    var rowHeight = 20; // TODO
-                    var startRow = viewPort.scrollTop / rowHeight;
-                    var endRow = ( viewPort.scrollTop + viewPort.clientHeight ) / rowHeight;
+                    console.log('top=' + viewPort.scrollTop);
+                    var startRow = Math.floor(viewPort.scrollTop / rowHeight);
+                    var endRow = Math.ceil(( viewPort.scrollTop + viewPort.clientHeight ) / rowHeight) - 1;
 
                     ensureData(startRow, endRow);
 
                     header.scrollLeft = viewPort.scrollLeft;
                 });
-
+  
+                console.log('perform render');
                 this.performFullRender();
             },
             componentDidUpdate: function() {
-                this.performFullRender();
+
+                //this.performFullRender();
+            },
+            shouldComponentUpdate: function(nextProps, nextState) {
+                                console.log('full render ' + nextState.fullRender);
+
+                return true;
+                console.log('comparing ' + nextState.rowCount + ' vs ' + this.state.rowCount);
+                return (nextState.rowCount != this.state.rowCount);
+                //return nextState.fullRender;
+                //return (this.props.grid.data != nextProps.grid.data);
             },
             render: function() {
 
@@ -574,7 +604,6 @@ var NgReactGridComponent = (function() {
                     )
                 } else {
                     var rowCount = this.props.grid.data.length;
-                    var chunkSize = 60;
             
                     rows = [];
                     for(var j = 0; j < Math.ceil(rowCount / chunkSize); j ++) {

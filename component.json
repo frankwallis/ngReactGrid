@@ -10,10 +10,10 @@
     "src/js/**/*.js"
   ],
   "styles": [
-    "build/css/ngReactGrid.css"
+    "src/css/ng-react-grid.css"
   ],
   "images": [
-    "build/img/arrow_icons.png"
+    "src/img/arrow_icons.png"
   ],
   "repository": "frankwallis/ngReactGrid",
   "version": "master"
