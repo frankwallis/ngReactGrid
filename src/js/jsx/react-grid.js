@@ -369,7 +369,9 @@ var NgReactGridComponent = (function() {
             shouldComponentUpdate: function(nextProps, nextState) {
                 if(this.props.row.entity != nextProps.row.entity) {
                     console.log('rendering ' + this.props.row.itemIndex)
-                }
+                } else {
+                   // console.log('not updating ' + this.props.row.itemIndex)
+                }   
                 //console.log('rendered ' + this.props.row.itemIndex + ': ' + (this.props.row.entity && (this.props.row.rendered == false)));
                return (this.props.row != nextProps.row)
             },
@@ -381,10 +383,7 @@ var NgReactGridComponent = (function() {
                     return React.createElement(NgReactGridBodyRowCell, {key: key, cell: cell, row: this.props.row, grid: this.props.grid, last: last})
                 }.bind(this));
 
-//                console.log('rendered ' + this.props.row.itemIndex);
-
-                if (!this.props.row.entity)
-                    return React.createElement("div", null)
+                console.log('rendered row ' + this.props.row.itemIndex);
 
                 return (
                     React.createElement("tr", {onClick: this.handleClick}, 
@@ -394,6 +393,101 @@ var NgReactGridComponent = (function() {
             }
         });
 
+        var NgReactGridRowGroup = React.createClass({displayName: 'NgReactGridRowGroup',
+            getInitialState: function() {
+                return {
+                    viewable: false
+                }
+            },
+            calculateIfNeedsUpdate: function(nextProps) {
+                if (this.props.start != nextProps.start)
+                    return true;
+
+                if (this.props.end != nextProps.end)
+                    return true;
+
+                for (var idx = 0; idx < this.props.rows.length; idx ++) {
+                    if (this.props.rows[idx] !== nextProps.rows[idx]) {
+                        return true;
+                    }
+                }
+
+                console.log('not updating ' + this.props.start + '-' + this.props.end);
+                return false;
+            },
+            componentWillMount: function() {
+                
+            },
+            componentWillReceiveProps: function(nextProps) {
+
+                // accept current viewport as props and togfle 'viewable' state
+                // this.setState({
+                //     viewable: this.getViewableState(nextProps);
+                // });
+
+            },
+            componentDidMount: function() {
+                
+            },
+            componentDidUpdate: function() {
+               
+            },
+            shouldComponentUpdate: function(nextProps, nextState) {
+
+                var needsUpdate = this.calculateIfNeedsUpdate(nextProps);
+
+                if (needsUpdate)
+                    console.log("" + this.props.start + '-' + this.props.end + ' needs update');
+                else              
+                    console.log("" + this.props.start + '-' + this.props.end + ' no update required');
+
+                return needsUpdate;
+
+                // if (nextState.needsUpdate)
+                //     console.log("" + this.props.start + '-' + this.props.end + ' needs update');
+                // else              
+                //     console.log("" + this.props.start + '-' + this.props.end + ' no update required');
+
+                // return nextState.needsUpdate;
+            },
+            render: function() {
+
+                var viewable = false; // TODO get within viewport
+                var haveData = false;
+
+                for (var idx = this.props.start; idx < this.props.end; idx ++)
+                    if (this.props.grid.data[idx].entity) {
+                        haveData = true;
+                        break;
+                    }
+
+                if (!haveData && !viewable) {
+                    console.log('padding ' + this.props.start + '-' + this.props.end);
+    
+                    var key = this.props.start;
+
+                    var divStyle = {
+                        height: 2041//(this.props.end - this.props.start + 1) * 20 // TODO use average height of populated items
+                    };
+
+                    return (React.createElement("div", {key: key, style: divStyle}));      
+                }
+
+                console.log('rendering ' + this.props.start + '-' + this.props.end);
+                var mapRows = function(row, index) {
+                    var absoluteIndex = index + this.props.start;
+                    return React.createElement(NgReactGridBodyRow, {key: absoluteIndex, row: row, columns: this.props.columnDefs, grid: this.props.grid})
+                }.bind(this);
+
+                var rows = this.props.grid.data
+                    .slice(this.props.start, this.props.end + 1)
+                    .map(mapRows);
+
+                return (React.createElement("tbody", null, 
+                            rows
+                        ));
+            }
+        });
 
         var NgReactGridBody = React.createClass({displayName: 'NgReactGridBody',
             getInitialState: function() {
@@ -403,11 +497,11 @@ var NgReactGridComponent = (function() {
                 }
             },
             calculateIfNeedsUpdate: function() {
-                if(this.props.grid.data.length > 100) {
+                ///if(this.props.grid.data.length > 100) {
                     this.setState({
                         needsUpdate: true
                     });
-                }
+                //}
             },
             performFullRender: function() {
                 if(this.state.needsUpdate) {
@@ -449,62 +543,6 @@ var NgReactGridComponent = (function() {
             },
             render: function() {
 
-                var mapRows = function(row, index) {
-                    return React.createElement(NgReactGridBodyRow, {key: index, row: row, columns: this.props.columnDefs, grid: this.props.grid})
-                }.bind(this);
-
-                // TODO correllate with viewport & active range
-                var reduceRows = function(result, row, index, rows) {
-                    if (row.entity) {
-                     //   console.log('key1 ' + index);
-
-                        result.push(React.createElement(NgReactGridBodyRow, {key: index, row: row, columns: this.props.columnDefs, grid: this.props.grid}));
-                    }
-                    else if ((index == rows.length -1) || rows[index + 1].entity) {
-                        
-                        var emptyRows = 0;
-                        
-                        for (var i = index; i >= 0; i --) {
-                            if (rows[i].entity)
-                                break;
-                            else
-                                emptyRows ++;
-                        }
-                        
-                        // var divStyle = {
-                        //     height: emptyHeight
-                        // };
-
-                        var chunkSize = 120;
-                        var remainder = emptyRows % chunkSize;
-
-                        if (remainder > 0) {
-                            var divStyle = {
-                                height: remainder * 20 // TODO use average height of populated items
-                            };
-
-                            var startIndex = index - emptyRows + remainder;
-                         //   console.log('key2 ' + startIndex);
-                            result.push(React.createElement("div", {key: startIndex, style: divStyle}));
-                        }
-
-                        for(var j = 0; j < Math.floor(emptyRows / chunkSize); j ++) {
-                            var key = (index - emptyRows + remainder + ((j+1) * chunkSize));
-
-                            var divStyle = {
-                                height: chunkSize * 20 // TODO use average height of populated items
-                            };
-
-                           // console.log('key3 ' + key);
-                            result.push(React.createElement("div", {key: key, style: divStyle}));                            
-                        }
-                        //result.push(<div key={index} style={divStyle}></div>);                        
-                    }
-                    return result;
-                }.bind(this);
-
-                var rows;
-
                 if(this.props.grid.react.loading) {
 
                     var loadingStyle = {
@@ -512,37 +550,50 @@ var NgReactGridComponent = (function() {
                     };
 
                     rows = (
-                        React.createElement("tr", null, 
-                            React.createElement("td", {colSpan: this.props.grid.columnDefs.length, style: loadingStyle}, 
-                                "Loading..."
+                        React.createElement("tbody", null, 
+                            React.createElement("tr", null, 
+                                React.createElement("td", {colSpan: this.props.grid.columnDefs.length, style: loadingStyle}, 
+                                    "Loading..."
+                                )
                             )
                         )
                     )
-                } else {
-                    if(!this.state.fullRender) {
-                        console.log('partial render')
-                        rows = this.props.grid.data.slice(0, 100).map(mapRows);
-                    } else {
-                        console.log('full render')
-                        //rows = this.props.grid.data.map(mapRows);
-                        rows = this.props.grid.data.reduce(reduceRows, []);
-                    }
+                } else if(this.props.grid.react.showingRecords === 0) {
+                    var noDataStyle = {
+                        textAlign: "center"
+                    };
 
-                    if(this.props.grid.react.showingRecords === 0) {
-                        var noDataStyle = {
-                            textAlign: "center"
-                        };
-
-                        rows = (
+                    rows = (
+                        React.createElement("tbody", null, 
                             React.createElement("tr", null, 
                                 React.createElement("td", {colSpan: this.props.grid.columnDefs.length, style: noDataStyle}, 
                                     "No records found"
                                 )
                             )
                         )
+                    )
+                } else {
+                    var rowCount = this.props.grid.data.length;
+                    var chunkSize = 120;
+                    var remainder = rowCount % chunkSize;
+
+                    rows = [];
+                    for(var j = 0; j < Math.ceil(rowCount / chunkSize); j ++) {
+
+                        var start = (j * chunkSize);
+                        var end = start + chunkSize - 1;
+
+                        if (end >= rowCount)
+                            end = rowCount -1;
+
+                        console.log('' + start + ':' + end-start+1);
+                        var data = this.props.grid.data.slice(start, end + 1);
+
+                        console.log('created chunk ' + start + '-' + end + ' ' + data.length + ' ' + this.props.grid.data.length);
+
+                        rows.push(React.createElement(NgReactGridRowGroup, {key: j, start: start, end: end, rows: data, columns: this.props.columnDefs, grid: this.props.grid}));
                     }
                 }
-
 
                 var ngReactGridViewPortStyle = {
                     maxHeight: this.props.grid.height,
@@ -562,9 +613,7 @@ var NgReactGridComponent = (function() {
                         React.createElement("div", {className: "ngReactGridViewPort", onscroll: this.handleScroll, style: ngReactGridViewPortStyle}, 
                             React.createElement("div", {className: "ngReactGridInnerViewPort"}, 
                                 React.createElement("table", {style: tableStyle}, 
-                                    React.createElement("tbody", null, 
-                                        rows
-                                    )
+                                    rows
                                 )
                             )
                         )

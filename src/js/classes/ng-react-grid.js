@@ -210,6 +210,7 @@ NgReactGrid.prototype.initWatchers = function () {
                 this.react.loading = false;
             }
 
+
             this.update(this.events.DATA, {
                 data: newValue
             });
