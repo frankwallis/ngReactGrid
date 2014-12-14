@@ -328,6 +328,15 @@ var NgReactGridComponent = (function() {
                     return this.defaultCell;
                 }
             },
+            canApply: function(scope) {
+                while(scope) {
+                    if (scope.$$phase)
+                        return false;
+
+                    scope = scope.$parent;
+                }
+                return true;
+            },
             render: function() {
                 var cellText = this.props.grid.react.getObjectPropertyByString(this.props.row, this.props.cell.field);
                 var cellStyle = {};
@@ -355,11 +364,61 @@ var NgReactGridComponent = (function() {
                 } else if(this.props.cell.render) {
                     cellText = this.props.cell.render(this.props.row);
                     return this.cell(cellText, cellStyle);
+                } else if(this.props.cell.interpolate) {
+                    console.log('using interpolate ' + JSON.stringify(this.props.row.scope.entity));
+
+                    var html;
+
+                    if (this.canApply(this.props.row.scope)) {//!this.props.row.scope.$$phase) {
+                        var self = this;
+                        this.props.row.scope.$apply(function() {
+                            html = self.props.cell.interpolate(self.props.row.scope);
+                        });
+                    }
+                    else {
+                        html = this.props.cell.interpolate(this.props.row.scope);
+                    }
+
+                    console.log('using compile ' + html);
+                    return ( React.createElement("td", {
+                            style: cellStyle, 
+                            title: String(cellText),
+                            dangerouslySetInnerHTML: { __html: html }
+                        })
+                    )
+                } else if(this.props.cell.compile) {
+                    console.log('using compile ' + JSON.stringify(this.props.row.scope.entity));
+
+                    var html;
+
+                    if (this.canApply(this.props.row.scope)) {//!this.props.row.scope.$$phase) {
+                        var self = this;
+                        this.props.row.scope.$apply(function() {
+                            html = self.props.cell.compile(self.props.row.scope).html();
+                        });
+                    }
+                    else {
+                        html = this.props.cell.compile(this.props.row.scope).html();
+                    }
+
+                    console.log('using compile ' + html);
+                    return ( React.createElement("td", {
+                            style: cellStyle, 
+                            title: String(cellText),
+                            dangerouslySetInnerHTML: { __html: html }
+                        })
+                    )
+                } else if(this.props.cell.template) {
+                    console.log('using template');
+                    return ( React.createElement("td", {
+                            style: cellStyle, 
+                            title: String(cellText),
+                            dangerouslySetInnerHTML: { __html: this.props.cell.template }
+                        })
+                    )
                 } else {
                     return this.defaultCell;
                 }
-
-
             }
         });
 
@@ -377,7 +436,7 @@ var NgReactGridComponent = (function() {
                 //     console.log('not updating ' + this.props.row.itemIndex)
                 // }   
                 //console.log('rendered ' + this.props.row.itemIndex + ': ' + (this.props.row.entity && (this.props.row.rendered == false)));
-               return (this.props.row != nextProps.row)
+               return (this.props.row != nextProps.row) && nextProps.row.entity;
             },
             render: function() {
 
@@ -388,6 +447,9 @@ var NgReactGridComponent = (function() {
                 }.bind(this));
 
                 console.log('rendered row ' + this.props.row.itemIndex);
+
+                if (!this.props.row.entity)
+                    cells = [];
 
                 var rowStyle = {
                     height: rowHeight
@@ -546,7 +608,7 @@ var NgReactGridComponent = (function() {
                 var ensureData = this.props.grid.react.wrapFunctionsInAngular(this.props.grid.ensureData);
 
                 domNode.firstChild.addEventListener('scroll', function(e) {
-                    console.log('top=' + viewPort.scrollTop);
+                  //  console.log('top=' + viewPort.scrollTop);
                     var startRow = Math.floor(viewPort.scrollTop / rowHeight);
                     var endRow = Math.ceil(( viewPort.scrollTop + viewPort.clientHeight ) / rowHeight) - 1;
 
